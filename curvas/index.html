@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Curvas Paramétricas — Bézier & Spline (De Casteljau / B-spline)
+    </title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="sidebar">
+      <header>
+        <h1>Curvas Paramétricas</h1>
+      </header>
+
+      <div class="tabs" role="tablist">
+        <div class="tab active" id="tab-bezier">Bézier</div>
+        <div class="tab" id="tab-spline">Spline (B-spline)</div>
+      </div>
+
+      <section style="margin-top: 12px">
+        <div class="muted">Interação no canvas</div>
+        <ul class="small">
+          <li>Click: adicionar ponto</li>
+          <li>Arrastar ponto: mover</li>
+          <li>Selecionar ponto: clicando sobre ele (mostra propriedades)</li>
+          <li>Botão "Remover" no painel remove o ponto selecionado</li>
+        </ul>
+      </section>
+
+      <section style="margin-top: 12px">
+        <div class="muted">Parâmetros gerais</div>
+        <div class="controls">
+          <div>
+            <label>Número de pontos: <span id="count">0</span></label>
+          </div>
+          <div>
+            <label>Modo: <span id="modeView">Bézier</span></label>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px">
+          <label>Interpolação / passo (Δt)</label>
+          <input
+            id="step"
+            type="range"
+            min="0.011"
+            max="0.05"
+            step="0.001"
+            value="0.01"
+          />
+          <div class="small muted">Valor: <span id="stepVal">0.01</span></div>
+        </div>
+
+        <div style="margin-top: 8px" id="bezierPanel">
+          <label>Grau: <span id="degLabel">Auto (n-1)</span></label>
+          <div class="small muted">
+            (Bézier usa grau = n-1 onde n = número pontos. Pesos afetam versão
+            racional)
+          </div>
+        </div>
+
+        <div style="margin-top: 8px" id="splinePanel" hidden>
+          <label>Grau B-spline:</label>
+          <select id="splineDegree">
+            <option value="2">2 (quadrática)</option>
+            <option value="3" selected>3 (cúbica)</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+
+        <div style="margin-top: 10px" class="row">
+          <button class="btn" id="exportBtn">Exportar JSON</button>
+          <button class="btn" id="clearBtn">Limpar</button>
+        </div>
+      </section>
+
+      <section style="margin-top: 12px">
+        <div class="muted">Pontos de Controle</div>
+        <div class="list" id="pointsList"></div>
+      </section>
+
+      <section style="margin-top: 12px">
+        <div class="muted">Ponto Selecionado</div>
+        <div style="margin-top: 6px">
+          <label>X</label>
+          <input id="selX" type="number" step="1" />
+          <label>Y</label>
+          <input id="selY" type="number" step="1" />
+          <label>Peso</label>
+          <input id="selW" type="number" step="0.1" value="1" />
+          <div style="margin-top: 8px" class="row">
+            <button class="btn" id="updatePt">Atualizar</button>
+            <button class="btn danger" id="removePt">Remover</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="small muted">
+          Algoritmos: De Casteljau (Bézier — suporta racional via pesos) e
+          B-spline cúbica (interpolação uniforme).
+        </div>
+      </footer>
+    </div>
+
+    <div class="main">
+      <div class="canvas-wrap">
+        <canvas id="c" width="1200" height="800"></canvas>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
