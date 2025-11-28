@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Superfícies de Revolução - Curvas Paramétricas</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Painel Esquerdo: Controle de Curva 2D -->
+      <div class="panel">
+        <h2>📐 Perfil 2D</h2>
+
+        <div class="control-group">
+          <label>Tipo de Curva</label>
+          <select id="curveType">
+            <option value="bezier">Bézier</option>
+            <option value="bspline">B-Spline</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label
+            >Grau da Curva
+            <span class="value-display" id="degreeValue">3</span></label
+          >
+          <input type="range" id="degree" min="2" max="5" value="3" />
+        </div>
+
+        <div class="control-group">
+          <label
+            >Resolução da Curva
+            <span class="value-display" id="resolutionValue">50</span></label
+          >
+          <input
+            type="range"
+            id="curveResolution"
+            min="20"
+            max="200"
+            value="50"
+          />
+        </div>
+
+        <div class="info-box">
+          <strong>Instruções:</strong><br />
+          • Clique no canvas superior para adicionar pontos de controle<br />
+          • Arraste pontos para movê-los<br />
+          • Clique em "Remover" para deletar
+        </div>
+
+        <button class="danger" id="clearPoints">Limpar Pontos</button>
+
+        <div class="control-group">
+          <label>Pontos de Controle</label>
+          <div class="point-list" id="pointList"></div>
+        </div>
+      </div>
+
+      <!-- Canvas Central -->
+      <div class="canvas-container">
+        <canvas id="canvas2D"></canvas>
+        <canvas id="canvas3D"></canvas>
+      </div>
+
+      <!-- Painel Direito: Controles 3D -->
+      <div class="panel">
+        <h2>🔄 Superfície de Revolução</h2>
+
+        <div class="control-group">
+          <label>Eixo de Revolução</label>
+          <select id="revolutionAxis">
+            <option value="y" selected>Y (Vertical)</option>
+            <option value="x">X (Horizontal)</option>
+            <option value="z">Z (Profundidade)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label
+            >Ângulo de Revolução
+            <span class="value-display" id="angleValue">360°</span></label
+          >
+          <input
+            type="range"
+            id="revolutionAngle"
+            min="30"
+            max="360"
+            value="360"
+          />
+        </div>
+
+        <div class="control-group">
+          <label
+            >Subdivisões Angulares
+            <span class="value-display" id="subdivisionsValue">32</span></label
+          >
+          <input
+            type="range"
+            id="angularSubdivisions"
+            min="8"
+            max="64"
+            value="32"
+          />
+        </div>
+
+        <button class="primary" id="generateSurface">Gerar Superfície</button>
+
+        <h2 style="margin-top: 25px">🎨 Visualização</h2>
+
+        <div class="mode-selector">
+          <button id="modeWireframe">Aramado</button>
+          <button id="modeSolid" class="active">Sólido</button>
+          <button id="modeSmooth">Suavizado</button>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <input
+              type="checkbox"
+              id="showWireframe"
+              style="width: auto; display: inline"
+            />
+            Mostrar Malha
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <input
+              type="checkbox"
+              id="showAxis"
+              checked
+              style="width: auto; display: inline"
+            />
+            Mostrar Eixos
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <input
+              type="checkbox"
+              id="autoRotate"
+              style="width: auto; display: inline"
+            />
+            Rotação Automática
+          </label>
+        </div>
+
+        <h2 style="margin-top: 25px">💾 Exportação</h2>
+
+        <button class="secondary" id="exportOBJ">Exportar OBJ</button>
+        <button class="secondary" id="exportSTL">Exportar STL</button>
+        <button class="secondary" id="exportJSON">Exportar JSON</button>
+
+        <div class="info-box" style="margin-top: 15px">
+          <strong>Estatísticas:</strong><br />
+          Vértices: <span id="statsVertices">0</span><br />
+          Faces: <span id="statsFaces">0</span><br />
+          Pontos de Controle: <span id="statsPoints">0</span>
+        </div>
+      </div>
+    </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+      // Torna THREE e OrbitControls disponíveis globalmente
+      window.THREE = THREE;
+      window.OrbitControls = OrbitControls;
+    </script>
+
+    <script src="script.js"></script>
+  </body>
+</html>
