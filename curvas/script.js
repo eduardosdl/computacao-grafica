@@ -33,6 +33,12 @@ let mode = "bezier"; // or 'spline'
 let step = parseFloat(stepRange.value);
 
 // gerais
+/**
+ * Converte coordenadas de tela (cliente) para coordenadas do canvas.
+ * @param {number} x - Coordenada X em pixels do evento (clientX).
+ * @param {number} y - Coordenada Y em pixels do evento (clientY).
+ * @returns {{x:number,y:number}} Ponto nas coordenadas internas do canvas.
+ */
 function screenToCanvas(x, y) {
   const r = rect();
   return {
@@ -41,11 +47,21 @@ function screenToCanvas(x, y) {
   };
 }
 
+/**
+ * Calcula a distância euclidiana entre dois pontos.
+ * @param {{x:number,y:number}} a - Primeiro ponto.
+ * @param {{x:number,y:number}} b - Segundo ponto.
+ * @returns {number} Distância em pixels.
+ */
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
 // ----------------- desenho -----------------
+/**
+ * Limpa e redesenha toda a cena no canvas.
+ * Desenha grade, polígono de controle, curva (Bézier ou B-spline) e pontos.
+ */
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawGrid();
@@ -57,6 +73,9 @@ function draw() {
   drawControlPoints();
 }
 
+/**
+ * Desenha uma grade leve para referência visual no canvas.
+ */
 function drawGrid() {
   ctx.save();
   ctx.lineWidth = 1;
@@ -77,6 +96,9 @@ function drawGrid() {
   ctx.restore();
 }
 
+/**
+ * Desenha o polígono de controle conectando os pontos atuais.
+ */
 function drawControlPolygon() {
   ctx.save();
   ctx.beginPath();
@@ -88,6 +110,9 @@ function drawControlPolygon() {
   ctx.restore();
 }
 
+/**
+ * Desenha os pontos de controle como círculos com índice ao lado.
+ */
 function drawControlPoints() {
   points.forEach((p, i) => {
     ctx.beginPath();
@@ -105,6 +130,13 @@ function drawControlPoints() {
 
 // ----------------- Bézier (De Casteljau) -----------------
 // Implementa Bézier racional via pesos: computa coordenadas ponderadas e depois divide
+/**
+ * Avalia uma curva Bézier racional usando o algoritmo de De Casteljau.
+ * Cada ponto tem peso `w`; trabalha em coordenadas ponderadas e retorna cartesiano.
+ * @param {{x:number,y:number,w:number}[]} ctrl - Pontos de controle com pesos.
+ * @param {number} t - Parâmetro no intervalo [0,1].
+ * @returns {{x:number,y:number}} Ponto avaliado na curva.
+ */
 function deCasteljauRational(ctrl, t) {
   // ctrl: [{x,y,w},...]
   let pts = ctrl.map((p) => ({ x: p.x * p.w, y: p.y * p.w, w: p.w }));
@@ -123,6 +155,10 @@ function deCasteljauRational(ctrl, t) {
   return res;
 }
 
+/**
+ * Desenha a curva Bézier (racional) atual com base em `points`.
+ * Usa o passo `step` para amostragem de `t` em [0,1].
+ */
 function drawBezier() {
   if (points.length < 2) return;
   ctx.save();
@@ -143,6 +179,14 @@ function drawBezier() {
 
 // ----------------- B-spline interpolation (uniform knots) -----------------
 // Implementa avaliação de curva B-spline usando fórmula de Cox - de Boor
+/**
+ * Função base B-spline (Cox–de Boor).
+ * @param {number} i - Índice da base.
+ * @param {number} k - Grau da curva.
+ * @param {number} t - Parâmetro.
+ * @param {number[]} knot - Vetor de nós.
+ * @returns {number} Valor da base N_{i,k}(t).
+ */
 function bsplineBasis(i, k, t, knot) {
   // i: índice da base, k: grau, t: parâmetro, knot: vetor de nós
   if (k === 0) {
@@ -160,6 +204,12 @@ function bsplineBasis(i, k, t, knot) {
   return term1 + term2;
 }
 
+/**
+ * Gera vetor de nós uniforme aberto com clamping.
+ * @param {number} nCtrl - Número de pontos de controle.
+ * @param {number} degree - Grau da B-spline.
+ * @returns {number[]} Vetor de nós no intervalo [0,1].
+ */
 function uniformKnotVector(nCtrl, degree) {
   // vetor de nós uniforme aberto com clamping
   const n = nCtrl - 1;
@@ -173,6 +223,14 @@ function uniformKnotVector(nCtrl, degree) {
   return knot;
 }
 
+/**
+ * Avalia uma curva B-spline em `t`.
+ * @param {{x:number,y:number}[]} ctrl - Pontos de controle.
+ * @param {number} degree - Grau da curva.
+ * @param {number} t - Parâmetro em [0,1].
+ * @param {number[]} knot - Vetor de nós correspondente.
+ * @returns {{x:number,y:number}} Ponto avaliado.
+ */
 function evalBSpline(ctrl, degree, t, knot) {
   const n = ctrl.length - 1;
   let x = 0,
@@ -185,6 +243,10 @@ function evalBSpline(ctrl, degree, t, knot) {
   return { x, y };
 }
 
+/**
+ * Desenha a B-spline atual com base em `points` e grau selecionado.
+ * Usa `step` para amostragem de `t`.
+ */
 function drawBSpline() {
   if (points.length < 2) return;
   const degree = parseInt(splineDegree.value, 10);
@@ -207,6 +269,9 @@ function drawBSpline() {
 }
 
 // ----------------- Interação -----------------
+/**
+ * Reconstrói a lista de pontos na UI e atualiza rótulos.
+ */
 function rebuildList() {
   pointsList.innerHTML = "";
   points.forEach((p, i) => {
@@ -229,6 +294,10 @@ function rebuildList() {
     points.length > 0 ? "Grau = " + (points.length - 1) : "Auto (n-1)";
 }
 
+/**
+ * Define o ponto selecionado e sincroniza campos da UI.
+ * @param {number|null} i - Índice do ponto ou null para limpar seleção.
+ */
 function setSelected(i) {
   selectedIndex = i == null ? null : i;
   if (selectedIndex != null) {
@@ -244,6 +313,10 @@ function setSelected(i) {
   draw();
 }
 
+/**
+ * Listener de mousedown no canvas: seleciona ponto existente ou cria novo.
+ * @param {MouseEvent} ev
+ */
 // eventos no canva
 canvas.addEventListener("mousedown", (ev) => {
   const c = screenToCanvas(ev.clientX, ev.clientY);
@@ -266,6 +339,11 @@ canvas.addEventListener("mousedown", (ev) => {
   draw();
 });
 
+/**
+ * Listener de movimento do mouse para arrastar pontos selecionados.
+ * Atualiza posição do ponto e campos da UI durante o arraste.
+ * @param {MouseEvent} ev
+ */
 window.addEventListener("mousemove", (ev) => {
   if (dragging.index == null) return;
   const c = screenToCanvas(ev.clientX, ev.clientY);
@@ -279,11 +357,18 @@ window.addEventListener("mousemove", (ev) => {
   draw();
 });
 
+/**
+ * Listener de término do arraste: limpa estado de `dragging`.
+ */
 window.addEventListener("mouseup", () => {
   dragging.index = null;
 });
 
 // manipula pontos via UI (editar/remover)
+/**
+ * Listener de clique na lista de pontos: seleciona item clicado.
+ * @param {MouseEvent} ev
+ */
 pointsList.addEventListener("click", (ev) => {
   const btn = ev.target.closest("button");
   if (!btn) return;
@@ -291,6 +376,9 @@ pointsList.addEventListener("click", (ev) => {
   setSelected(i);
 });
 
+/**
+ * Atualiza o ponto selecionado com os valores de X, Y e peso da UI.
+ */
 updatePt.addEventListener("click", () => {
   if (selectedIndex == null) return;
   const x = Number(selX.value),
@@ -305,6 +393,9 @@ updatePt.addEventListener("click", () => {
   }
 });
 
+/**
+ * Remove o ponto atualmente selecionado.
+ */
 removePt.addEventListener("click", () => {
   if (selectedIndex == null) return;
   points.splice(selectedIndex, 1);
@@ -313,6 +404,9 @@ removePt.addEventListener("click", () => {
   draw();
 });
 
+/**
+ * Limpa todos os pontos e atualiza a UI.
+ */
 clearBtn.addEventListener("click", () => {
   points = [];
   selectedIndex = null;
@@ -320,12 +414,18 @@ clearBtn.addEventListener("click", () => {
   draw();
 });
 
+/**
+ * Atualiza o passo de amostragem das curvas e redesenha.
+ */
 stepRange.addEventListener("input", () => {
   step = parseFloat(stepRange.value);
   stepVal.textContent = step.toFixed(3);
   draw();
 });
 
+/**
+ * Exporta a configuração atual (modo, passo, grau, pontos) como JSON.
+ */
 exportBtn.addEventListener("click", () => {
   const data = {
     mode,
@@ -345,6 +445,9 @@ exportBtn.addEventListener("click", () => {
 });
 
 // tabs
+/**
+ * Alterna para modo Bézier e atualiza a UI.
+ */
 tabBezier.addEventListener("click", () => {
   mode = "bezier";
   tabBezier.classList.add("active");
@@ -354,6 +457,9 @@ tabBezier.addEventListener("click", () => {
   splinePanel.hidden = true;
   draw();
 });
+/**
+ * Alterna para modo B-spline e atualiza a UI.
+ */
 tabSpline.addEventListener("click", () => {
   mode = "spline";
   tabSpline.classList.add("active");
@@ -365,6 +471,10 @@ tabSpline.addEventListener("click", () => {
 });
 
 // keyboard: excluir
+/**
+ * Listener de teclado: apaga ponto selecionado com Delete/Backspace.
+ * @param {KeyboardEvent} ev
+ */
 window.addEventListener("keydown", (ev) => {
   if (ev.key === "Delete" || ev.key === "Backspace") {
     if (selectedIndex != null) {
@@ -377,6 +487,10 @@ window.addEventListener("keydown", (ev) => {
 });
 
 // redimensionamento canvas
+/**
+ * Redimensiona o canvas com alta fidelidade usando devicePixelRatio.
+ * Mantido para referência; o app usa `resizeSimple` por simplicidade.
+ */
 function resize() {
   const r = rect();
   const ratio = window.devicePixelRatio || 1;
@@ -394,6 +508,10 @@ function resize() {
 }
 
 // para evitar complexidade com transformações, definiremos a largura/altura do canvas em pixels CSS
+/**
+ * Redimensiona o canvas para corresponder ao retângulo de layout (CSS pixels).
+ * Também força um redesenho.
+ */
 function resizeSimple() {
   const r = rect();
   canvas.width = Math.round(r.width);
@@ -404,6 +522,9 @@ window.addEventListener("resize", resizeSimple);
 resizeSimple();
 
 // pontos iniciais de demonstração
+/**
+ * Inicializa um conjunto de pontos de exemplo e redesenha.
+ */
 function seed() {
   const w = canvas.width,
     h = canvas.height;
@@ -420,13 +541,32 @@ seed();
 
 // expõe algumas funções para avaliação / testes
 window.__app = {
+  /**
+   * Retorna uma cópia dos pontos atuais.
+   * @returns {{x:number,y:number,w:number}[]} Array de pontos.
+   */
   getPoints: () => points.map((p) => ({ x: p.x, y: p.y, w: p.w })),
+  /**
+   * Define a lista de pontos e atualiza a UI.
+   * @param {{x:number,y:number,w:number}[]} arr - Novo conjunto de pontos.
+   */
   setPoints: (arr) => {
     points = arr.map((p) => ({ x: p.x, y: p.y, w: p.w }));
     rebuildList();
     draw();
   },
+  /**
+   * Avalia a curva Bézier racional atual em `t`.
+   * @param {number} t - Parâmetro em [0,1].
+   * @returns {{x:number,y:number}} Ponto avaliado.
+   */
   computeBezierAt: (t) => deCasteljauRational(points, t),
+  /**
+   * Avalia a curva B-spline atual em `t` com grau `deg`.
+   * @param {number} t - Parâmetro em [0,1].
+   * @param {number} [deg=3] - Grau da B-spline.
+   * @returns {{x:number,y:number}} Ponto avaliado.
+   */
   computeBSplineAt: (t, deg = 3) => {
     return evalBSpline(points, deg, t, uniformKnotVector(points.length, deg));
   },
