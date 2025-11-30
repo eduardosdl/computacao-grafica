@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speedy Gonzales - Cena Animada</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>As Aventuras do Speedy Gonzales</h1>
+
+    <div class="controls">
+      <button id="toggleAnimation">Pausar Animação</button>
+      <button id="resetCamera">Resetar Câmera</button>
+      <button id="toggleLight">Alternar Luz</button>
+      <button id="captureMode">Modo Captura</button>
+    </div>
+
+    <div class="container">
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
+      <div class="capture-message" id="captureMessage">Me capturaram!</div>
+      <div class="cat-paw" id="catPaw"></div>
+    </div>
+
+    <div class="instructions">
+      <p>
+        <strong>Controles:</strong> Use as teclas W, A, S, D ou as setas para
+        mover a câmera. Clique no Speedy Gonzales para capturá-lo (ative o Modo
+        Captura primeiro).
+      </p>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

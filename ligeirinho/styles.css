@@ -1,0 +1,96 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #1a1a2e;
+  color: #fff;
+  font-family: "Arial", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+h1 {
+  margin-bottom: 10px;
+  color: #ffcc00;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+button {
+  background-color: #4a4a8a;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #5a5aaa;
+}
+
+.container {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  border: 2px solid #ffcc00;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+}
+
+#gameCanvas {
+  background-color: #2a2a4a;
+  display: block;
+}
+
+.instructions {
+  margin-top: 15px;
+  text-align: center;
+  max-width: 800px;
+  line-height: 1.5;
+  background-color: rgba(42, 42, 74, 0.7);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.capture-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #ffcc00;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  display: none;
+  z-index: 10;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.cat-paw {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="30" r="20" fill="%23ff9966"/><circle cx="30" cy="60" r="15" fill="%23ff9966"/><circle cx="50" cy="70" r="15" fill="%23ff9966"/><circle cx="70" cy="60" r="15" fill="%23ff9966"/></svg>');
+  background-size: contain;
+  pointer-events: none;
+  display: none;
+  z-index: 5;
+}
